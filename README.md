@@ -11,6 +11,8 @@ To build this project, clone this repository and open the SLN file using Visual 
 
 As stated above, download the pcileech dependencies and place them along side your exe. Again, you need: **vmm.dll, leechcore.dll, FTD3XX.dll** 
 
+Found here https://github.com/ufrisk/pcileech
+
 Additonally, you will need a folder to hold the map images. You can find them in the release section, or use your own. Create a folder named "maps" and place your map images there **(.png files)**. The radar is hard coded to use the classic 1024x1024p CS2 map images for simplicity.
 
 If you want to build using something else you will have to handle linking the dependencies.
