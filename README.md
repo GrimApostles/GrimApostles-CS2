@@ -9,7 +9,7 @@ To build this project, clone this repository and open the SLN file using Visual 
 
 As stated above, download the pcileech dependencies and place them along side your exe. Again, you need: **vmm.dll, leechcore.dll, FTD3XX.dll** 
 
-Found here https://github.com/ufrisk/pcileech
+Found here [https://github.com/ufrisk/pcileech](https://github.com/ufrisk/pcileech/releases)
 
 Additonally, you will need a folder to hold the map images. You can find them in the release section, or use your own. Create a folder named "maps" and place your map images there **(.png files)**. The radar is hard coded to use the classic 1024x1024p CS2 map images for simplicity.
 
@@ -25,4 +25,4 @@ This project does not yet include auto updates. Use the a2x dumper to get new of
 
 https://github.com/a2x/cs2-dumper
 
-You will find **offsets.h** and **client_dll.hpp** in the output folder. Typically, the offsets found in client_dll dont change every update. You only need to check these if an update breaks any features. You can copy the updated offsets.h from the dumper and paste them in the include/offsets.h file for the radar.
+You will find [**offsets.hpp**](https://github.com/a2x/cs2-dumper/blob/main/output/offsets.hpp) and [**client_dll.hpp**](https://github.com/a2x/cs2-dumper/blob/main/output/client_dll.hpp) in the output folder. You will need to copy offsets in the **offsets::client_dll** namespace every update. The extra (Player)values you will find in the radar offset file are updated rarely and only need to be updated if an update breaks any features. You can search for these offsets in the formentioned **client_dll.hpp** file using CTRL-F
