@@ -25,4 +25,4 @@ This project does not yet include auto updates. Use the a2x dumper to get new of
 
 https://github.com/a2x/cs2-dumper
 
-You will find [**offsets.hpp**](https://github.com/a2x/cs2-dumper/blob/main/output/offsets.hpp) and [**client_dll.hpp**](https://github.com/a2x/cs2-dumper/blob/main/output/client_dll.hpp) in the output folder. You will need to copy offsets in the **offsets::client_dll** namespace every update. The extra (Player)values you will find in the radar offset file are updated rarely and only need to be updated if an update breaks any features. You can search for these offsets in the formentioned **client_dll.hpp** file using CTRL-F
+You will find [**offsets.hpp**](https://github.com/a2x/cs2-dumper/blob/main/output/offsets.hpp) and [**client_dll.hpp**](https://github.com/a2x/cs2-dumper/blob/main/output/client_dll.hpp) in the output folder. You will need to copy offsets in the **offsets::client_dll** namespace every update. The extra (Player)values you will find in the radar offset file are updated rarely and only need to be changed if an update breaks any features. You can search for these offsets in the formentioned **client_dll.hpp** file using CTRL-F
