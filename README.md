@@ -7,7 +7,7 @@ Building
 ---
 To build this project, clone this repository and open the SLN file using Visual Studio. I am using the Visual Studio 2022 (v143) version. Make sure to set the output configuration to Release(x64) and build the project. The build and binary directories will be created. You will find your .exe in the "bin/release" directory.
 
-As stated above, download the pcileech dependencies and place them along side your exe. Again, you need: **vmm.dll, leechcore.dll, FTD3XX.dll** 
+Download the pcileech dependencies and place them along side your exe. You need: **vmm.dll, leechcore.dll, FTD3XX.dll** 
 
 Found here [https://github.com/ufrisk/pcileech](https://github.com/ufrisk/pcileech/releases) (Windows Download)
 
