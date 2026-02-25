@@ -11,7 +11,7 @@ Download the pcileech dependencies and place them along side your exe. You need:
 
 Found here [https://github.com/ufrisk/pcileech](https://github.com/ufrisk/pcileech/releases) (Windows Download)
 
-Additonally, you can find the necessary .dll and texture files in the assets directory - place these files alongside your compiled program
+Additonally, you can find the necessary .dll and texture files in the [assets](https://github.com/GrimApostles/GrimApostles-CS2/tree/80183f7cb01cea0514cf0dac99de6feb4800b5fa/GrimApostles%20CS2/assets) directory - place these files alongside your compiled program
 
 Here's an example of what it should look like
 <img width="1059" height="292" alt="Screenshot 2026-02-25 005002" src="https://github.com/user-attachments/assets/3bc84ec6-995e-4dce-be40-df87005dc85b" />
