@@ -11,13 +11,13 @@ Download the pcileech dependencies and place them along side your exe. You need:
 
 Found here [https://github.com/ufrisk/pcileech](https://github.com/ufrisk/pcileech/releases) (Windows Download)
 
-Additonally, you will need a folder to hold the map images. You can find them in the release section, or use your own. Create a folder named "maps" and place your map images there **(.png files)**. The radar is hard coded to use the classic 1024x1024p CS2 map images for simplicity.
-
-If you want to build using something else you will have to handle linking the dependencies.
+Additonally, you can find the necessary .dll and texture files in the assets directory - place these files alongside your compiled program
 
 Here's an example of what it should look like
-<img width="1039" height="330" alt="image" src="https://github.com/user-attachments/assets/687b78ce-c335-4b3c-bca6-43d8b5a8a941" />
+<img width="1059" height="292" alt="Screenshot 2026-02-25 005002" src="https://github.com/user-attachments/assets/3bc84ec6-995e-4dce-be40-df87005dc85b" />
 
+
+If you want to build using something else you will have to handle linking the dependencies.
 
 Updating
 ---
