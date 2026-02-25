@@ -18,6 +18,7 @@ void CGame::update() {
 	getColor();
 	getAngles();
 	getPosition();
+	getWeapons();
 }
 
 //Game
@@ -129,6 +130,20 @@ void CGame::getAngles() {
 void CGame::getPosition() {
 	for (int i = 1; i <= 64; i++) {
 		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].pawn + client_dll::m_vOldOrigin, &players[i - 1].position, sizeof(Vector3));
+	}
+	DMADevice::ExecuteRead(DMADevice::hScatter);
+	DMADevice::Clear(DMADevice::hScatter);
+}
+
+void CGame::getWeapons() {
+	for (int i = 1; i <= 64; i++) {
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i-1].pawn + client_dll::m_pClippingWeapon, &players[i - 1].weaponPtr, sizeof(uint64_t));
+	}
+	DMADevice::ExecuteRead(DMADevice::hScatter);
+	DMADevice::Clear(DMADevice::hScatter);
+
+	for (int i = 1; i <= 64; i++) {
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weaponPtr + client_dll::m_AttributeManager + client_dll::m_Item + client_dll::m_iItemDefinitionIndex, &players[i - 1].weaponID, sizeof(uint16_t));
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);

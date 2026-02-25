@@ -30,6 +30,7 @@ namespace gui {
 	void CreateRenderTarget();
 	void CleanupRenderTarget();
 	ID3D11ShaderResourceView* LoadImageTexture(ID3D11Device* device, const wchar_t* filename);
+	ID3D11ShaderResourceView* LoadImageTexture(ID3D11Device* device, const wchar_t* filename, int* outWidth, int* outHeight);
 	LRESULT WINAPI WndProc(HWND, UINT, WPARAM, LPARAM);
 
 	//Rendering Functions
@@ -59,4 +60,12 @@ namespace maps {
 	
 	extern std::unordered_map<std::string, ID3D11ShaderResourceView*> mapTextures;
 	extern std::unordered_map<std::string, mapData> mapBounds;
+}
+
+namespace icons {
+	extern int id;
+	extern float scale;
+	extern std::unordered_map<int, ID3D11ShaderResourceView*> iconTextures;
+	extern std::unordered_map<int, int> iconWidths;
+	extern std::unordered_map<int, int> iconHeights;
 }

@@ -29,6 +29,8 @@ class CPlayer {
 		DWORD color;
 		Vector2 eyeAngles;
 		Vector3 position;
+		uint64_t weaponPtr;
+		uint16_t weaponID;
 };
 
 class CGame {
@@ -54,4 +56,5 @@ class CGame {
 		void getColor();
 		void getAngles();
 		void getPosition();
+		void getWeapons();
 };
