@@ -48,8 +48,6 @@ namespace gui {
 	// Game rendering (render.cpp)
 	void gameLoop(CGame);
 	void renderMap(ID3D11ShaderResourceView*);
-	void renderIcons(CGame);
-	void renderAimLines(CGame);
 	void renderPlayers(CGame);
 
 	// Resource loading (resources.cpp)

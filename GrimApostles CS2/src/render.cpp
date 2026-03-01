@@ -2,6 +2,8 @@
 #include "gui.h"
 #include "sdk.h"
 
+static constexpr float PI = 3.14159265f;
+
 void gui::gameLoop(CGame game) {
 	std::string mapName = game.map;
 
@@ -9,10 +11,7 @@ void gui::gameLoop(CGame game) {
 	if (mapName == "de_nuke"    && game.localPlayer.position.z <= maps::nukeZBound)    mapName = "de_nuke_lower";
 	if (mapName == "de_vertigo" && game.localPlayer.position.z <= maps::vertigoZBound) mapName = "de_vertigo_lower";
 
-	ID3D11ShaderResourceView* texture = maps::mapTextures[mapName];
-	renderMap(texture);
-	renderIcons(game);
-	renderAimLines(game);
+	renderMap(maps::mapTextures[mapName]);
 	renderPlayers(game);
 	ImGui::End();
 }
@@ -32,88 +31,53 @@ void gui::renderMap(ID3D11ShaderResourceView* texture) {
 	ImGui::Image((void*)texture, ImVec2(maps::radarSize, maps::radarSize));
 }
 
-void gui::renderIcons(CGame game) {
-	ImVec2 windowPos = ImGui::GetWindowPos();
-
-	for (int i = 1; i <= 64; i++) {
-		if (game.players[i - 1].controller == NULL) continue;
-		if (game.players[i - 1].health == 0)        continue;
-		// Skip teammates
-		if (game.players[i - 1].teamID == game.localPlayer.teamID) continue;
-
-		float x     = game.players[i - 1].position.x;
-		float y     = game.players[i - 1].position.y;
-		float angle = game.players[i - 1].eyeAngles.y * 3.14159265f / 180.0f;
-		worldToRadar(x, y, game);
-
-		int   weaponID = game.players[i - 1].weaponID;
-		float iconW    = (float)icons::iconWidths[weaponID]  * icons::scale;
-		float iconH    = (float)icons::iconHeights[weaponID] * icons::scale;
-
-		ImVec2 iconPos;
-		if (angle >= 0 && angle <= 3.14159265f)
-			iconPos = ImVec2(windowPos.x + x - (iconW / 2), (windowPos.y + y) + 10.f);
-		else
-			iconPos = ImVec2(windowPos.x + x - (iconW / 2), (windowPos.y + y) - 10.f - iconH);
-
-		ImGui::GetForegroundDrawList()->AddImage(
-			(ImTextureID)icons::iconTextures[weaponID],
-			iconPos,
-			ImVec2(iconPos.x + iconW, iconPos.y + iconH),
-			ImVec2(0, 0), ImVec2(1, 1),
-			IM_COL32(255, 255, 255, 255)
-		);
-	}
-}
-
-void gui::renderAimLines(CGame game) {
-	ImVec2 windowPos = ImGui::GetWindowPos();
-	const float length = 40.0f;
-
-	for (int i = 1; i <= 64; i++) {
-		if (game.players[i - 1].controller == NULL) continue;
-		if (game.players[i - 1].health == 0)        continue;
-
-		float x       = game.players[i - 1].position.x;
-		float y       = game.players[i - 1].position.y;
-		float z       = game.players[i - 1].position.z;
-		float angle   = game.players[i - 1].eyeAngles.y * 3.14159265f / 180.0f;
-		worldToRadar(x, y, game);
-
-		float   opacity  = setOpacity(game.localPlayer.position.z, z, game);
-		ImVec2  origin   = ImVec2(windowPos.x + x, windowPos.y + y);
-		ImVec2  endpoint = ImVec2(origin.x + length * cos(angle) + 1.0f, origin.y + length * sin(angle) * -1 + 1.0f);
-
-		ImGui::GetForegroundDrawList()->AddLine(origin, endpoint, IM_COL32(0,   0,   0,   (int)opacity), 6.5f);
-		ImGui::GetForegroundDrawList()->AddLine(origin, endpoint, IM_COL32(255, 255, 255, (int)opacity), 4.0f);
-	}
-}
-
+// Single pass over all players: aim line → weapon icon (enemies only) → dot
 void gui::renderPlayers(CGame game) {
-	ImVec2 windowPos = ImGui::GetWindowPos();
+	ImVec2      windowPos  = ImGui::GetWindowPos();
+	const float aimLength  = 40.0f;
+	const float localZ     = game.localPlayer.position.z;
 
-	for (int i = 1; i <= 64; i++) {
-		if (game.players[i - 1].controller == NULL) continue;
-		if (game.players[i - 1].health == 0)        continue;
+	for (int i = 0; i < 64; i++) {
+		const CPlayer& p = game.players[i];
+		if (!p.controller || !p.health) continue;
 
-		float x = game.players[i - 1].position.x;
-		float y = game.players[i - 1].position.y;
-		float z = game.players[i - 1].position.z;
+		float x     = p.position.x;
+		float y     = p.position.y;
+		float z     = p.position.z;
+		float angle = p.eyeAngles.y * PI / 180.0f;
 		worldToRadar(x, y, game);
 
-		float  opacity = setOpacity(game.localPlayer.position.z, z, game);
-		ImU32  dotColor;
+		float  opacity = setOpacity(localZ, z, game);
+		ImVec2 pos     = ImVec2(windowPos.x + x, windowPos.y + y);
 
-		if (game.players[i - 1].teamID == game.localPlayer.teamID)
-			dotColor = setColor(game.players[i - 1].color, opacity);
-		else
-			dotColor = IM_COL32(255, 9, 9, (int)opacity);
+		// Aim line
+		ImVec2 endpoint = ImVec2(pos.x + aimLength * cos(angle) + 1.0f,
+		                         pos.y + aimLength * sin(angle) * -1.0f + 1.0f);
+		ImGui::GetForegroundDrawList()->AddLine(pos, endpoint, IM_COL32(0,   0,   0,   (int)opacity), 6.5f);
+		ImGui::GetForegroundDrawList()->AddLine(pos, endpoint, IM_COL32(255, 255, 255, (int)opacity), 4.0f);
 
-		// Local player is always white
-		if (game.players[i - 1].controller == game.localPlayer.controller)
-			dotColor = IM_COL32(255, 255, 255, 255);
+		// Weapon icon — enemies only
+		if (p.teamID != game.localPlayer.teamID) {
+			int   weaponID = p.weaponID;
+			float iconW    = (float)icons::iconWidths[weaponID]  * icons::scale;
+			float iconH    = (float)icons::iconHeights[weaponID] * icons::scale;
+			ImVec2 iconPos = (angle >= 0 && angle <= PI)
+				? ImVec2(pos.x - iconW / 2, pos.y + 10.f)
+				: ImVec2(pos.x - iconW / 2, pos.y - 10.f - iconH);
+			ImGui::GetForegroundDrawList()->AddImage(
+				(ImTextureID)icons::iconTextures[weaponID],
+				iconPos, ImVec2(iconPos.x + iconW, iconPos.y + iconH),
+				ImVec2(0, 0), ImVec2(1, 1),
+				IM_COL32(255, 255, 255, 255)
+			);
+		}
 
-		ImVec2 pos = ImVec2(windowPos.x + x, windowPos.y + y);
+		// Player dot — local player white, teammates colored, enemies red
+		ImU32 dotColor;
+		if      (p.controller == game.localPlayer.controller) dotColor = IM_COL32(255, 255, 255, 255);
+		else if (p.teamID     == game.localPlayer.teamID)     dotColor = setColor(p.color, opacity);
+		else                                                   dotColor = IM_COL32(255, 9, 9, (int)opacity);
+
 		ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 9.25f, IM_COL32(0, 0, 0, 255));
 		ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 8.0f,  dotColor);
 	}
