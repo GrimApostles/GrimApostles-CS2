@@ -18,15 +18,6 @@ A DMA-based radar for Counter-Strike 2 built with ImGui and DirectX 11, written 
 
 ---
 
-Features
----
-- **Auto-updating offsets** — fetches the latest offsets from [a2x/cs2-dumper](https://github.com/a2x/cs2-dumper) at startup; falls back to hardcoded defaults if the fetch fails
-- **Radar overlay** — renders all players on the current map with aim lines and weapon icons for enemies
-- **Multi-level map support** — automatically switches between upper/lower floor textures for Nuke and Vertigo based on Z position
-- **Weapon icons** — displays enemy weapon icons sourced from CS2 item definition indices
-- **FPS display** — live frame rate shown in the overlay
-- **VSync** — smooth rendering via DXGI Present(1, 0)
-
 Building
 ---
 Clone the repository and open the `.sln` file in **Visual Studio 2022 (v143)**. Set the configuration to **Release x64** and build. The output `.exe` will be in `bin/Release/`.
