@@ -206,7 +206,6 @@
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\sdk.cpp" />
     <ClCompile Include="src\updater.cpp" />
-    <ClCompile Include="src\vec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DirectX11\WICTextureLoader.h" />
