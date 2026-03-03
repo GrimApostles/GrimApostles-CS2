@@ -25,7 +25,7 @@ class CPlayer {
 		uint64_t pawn;
 		char name[36];
 		uint8_t teamID;
-		uint32_t health;
+		int32_t health;
 		DWORD color;
 		Vector2 eyeAngles;
 		Vector3 position;

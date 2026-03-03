@@ -2,14 +2,13 @@
 
 void CGame::update() {
 	getMap();
+	getEntityList();
 	//local
 	getLocalPlayer();
 	getLocalPawn();
 	getLocalTeam();
 	getLocalPos();
 	getLocalName();
-
-	getEntityList();
 	//Entities
 	getPlayers();
 	getName();
@@ -108,14 +107,14 @@ void CGame::getTeam() {
 }
 void CGame::getHealth() {
 	for (int i = 1; i <= 64; i++) {
-		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].pawn + client_dll::m_iHealth, &players[i - 1].health, sizeof(uint32_t));
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].pawn + client_dll::m_iHealth, &players[i - 1].health, sizeof(int32_t));
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
 }
 void CGame::getColor() {
 	for (int i = 1; i <= 64; i++) {
-		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].controller + client_dll::m_iCompTeammateColor, &players[i - 1].color, sizeof(uint64_t));
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].controller + client_dll::m_iCompTeammateColor, &players[i - 1].color, sizeof(uint32_t));
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
