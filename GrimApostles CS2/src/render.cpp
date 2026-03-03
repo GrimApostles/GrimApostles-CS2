@@ -16,9 +16,12 @@ void gui::gameLoop(CGame game) {
 
 void gui::renderMap(ID3D11ShaderResourceView* texture) {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x / 2 - maps::radarSize / 2), (ImGui::GetIO().DisplaySize.y / 2 - maps::radarSize / 2)));
+	ImGui::SetNextWindowSize(ImVec2(maps::radarSize, maps::radarSize));
 	ImGui::Begin("MAP", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 	ImGui::Image((void*)texture, ImVec2(maps::radarSize, maps::radarSize));
+	ImGui::PopStyleVar(2);
 }
 
 void gui::renderPlayers(CGame game) {
