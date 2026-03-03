@@ -122,7 +122,7 @@ void gui::Render() {
 		g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-		g_pSwapChain->Present(0, 0); // Present without vsync
+		g_pSwapChain->Present(1, 0); // Present with vsync
 	}
 
 
@@ -137,7 +137,10 @@ void gui::Render() {
 	DMADevice::ShowKeyPress();
 	return;
 }
-//Here is where we initialize our DMA and connect to process
+
+
+
+//Our elements
 void gui::ConnectButton() {
 	ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 185, 35));
 	ImGui::StyleColorsDark();

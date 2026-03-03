@@ -133,7 +133,6 @@ void CGame::getPosition() {
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
 }
-
 void CGame::getWeapons() {
 	for (int i = 1; i <= 64; i++) {
 		DMADevice::PrepareEX(DMADevice::hScatter, players[i-1].pawn + client_dll::m_pClippingWeapon, &players[i - 1].weaponPtr, sizeof(uint64_t));

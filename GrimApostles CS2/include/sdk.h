@@ -42,13 +42,12 @@ class CGame {
 		void update();
 
 		void getMap();
+		void getEntityList();
 		void getLocalPlayer();
 		void getLocalPawn();
 		void getLocalTeam();
 		void getLocalPos();
 		void getLocalName();
-
-		void getEntityList();
 		void getPlayers();
 		void getName();
 		void getTeam();
