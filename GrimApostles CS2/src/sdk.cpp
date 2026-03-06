@@ -197,7 +197,7 @@ void CGame::getWeapons() {
 	//Weapon ID's
 	for (int i = 1; i <= 64; i++) {
 		for (int j = 0; j < players[i - 1].weaponCount; j++) {
-			DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weapons[j].weaponController + +client_dll::m_AttributeManager + client_dll::m_Item + client_dll::m_iItemDefinitionIndex, &players[i - 1].weapons[j].weaponID, sizeof(uint16_t));
+			DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weapons[j].weaponController + client_dll::m_AttributeManager + client_dll::m_Item + client_dll::m_iItemDefinitionIndex, &players[i - 1].weapons[j].weaponID, sizeof(uint16_t));
 		}
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
