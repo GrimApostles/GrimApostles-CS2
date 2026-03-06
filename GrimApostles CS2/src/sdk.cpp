@@ -17,6 +17,7 @@ void CGame::update() {
 	getColor();
 	getAngles();
 	getPosition();
+	getActiveWeapons();
 	getWeapons();
 }
 
@@ -133,15 +134,71 @@ void CGame::getPosition() {
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
 }
-void CGame::getWeapons() {
+void CGame::getActiveWeapons() {
 	for (int i = 1; i <= 64; i++) {
-		DMADevice::PrepareEX(DMADevice::hScatter, players[i-1].pawn + client_dll::m_pClippingWeapon, &players[i - 1].weaponPtr, sizeof(uint64_t));
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].pawn + client_dll::m_pClippingWeapon, &players[i - 1].activeWeapon, sizeof(uint64_t));
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
-
+	//Active WeaponID
 	for (int i = 1; i <= 64; i++) {
-		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weaponPtr + client_dll::m_AttributeManager + client_dll::m_Item + client_dll::m_iItemDefinitionIndex, &players[i - 1].weaponID, sizeof(uint16_t));
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].activeWeapon + client_dll::m_AttributeManager + client_dll::m_Item + client_dll::m_iItemDefinitionIndex, &players[i - 1].activeWeaponID, sizeof(uint16_t));
+	}
+	DMADevice::ExecuteRead(DMADevice::hScatter);
+	DMADevice::Clear(DMADevice::hScatter);
+}
+
+//Searching through weapon services to get full loadout -> we can see who has bomb, render full loadout, whatever we need
+void CGame::getWeapons() {
+	//WeaponServices
+	for (int i = 1; i <= 64; i++) {
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].pawn + client_dll::m_pWeaponServices, &players[i - 1].weaponServices, sizeof(uint64_t));
+	}
+	DMADevice::ExecuteRead(DMADevice::hScatter);
+	DMADevice::Clear(DMADevice::hScatter);
+	//Weapon count
+	for (int i = 1; i <= 64; i++) {
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weaponServices + client_dll::m_hMyWeapons, &players[i - 1].weaponCount, sizeof(int32_t));
+	}
+	DMADevice::ExecuteRead(DMADevice::hScatter);
+	DMADevice::Clear(DMADevice::hScatter);
+	//weapon data
+	for (int i = 1; i <= 64; i++) {
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weaponServices + client_dll::m_hMyWeapons + 0x8, &players[i - 1].weaponData, sizeof(uint64_t));
+	}
+	DMADevice::ExecuteRead(DMADevice::hScatter);
+	DMADevice::Clear(DMADevice::hScatter);
+	//Weapon handles
+	for (int i = 1; i <= 64; i++) {
+		for (int j = 0; j < players[i - 1].weaponCount; j++) {
+			DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weaponData + j * (sizeof(uint32_t)), &players[i - 1].weapons[j].weaponHandle, sizeof(uint32_t));
+		}
+	}
+	DMADevice::ExecuteRead(DMADevice::hScatter);
+	DMADevice::Clear(DMADevice::hScatter);
+	//List Entry
+	for (int i = 1; i <= 64; i++) {
+		for (int j = 0; j < players[i - 1].weaponCount; j++) {
+			int index = players[i - 1].weapons[j].weaponHandle & 0x7FFF;
+			DMADevice::PrepareEX(DMADevice::hScatter, entityList + (0x8 * (index >> 9) + 16), &players[i - 1].weapons[j].weaponEntry, sizeof(uint64_t));
+		}
+	}
+	DMADevice::ExecuteRead(DMADevice::hScatter);
+	DMADevice::Clear(DMADevice::hScatter);
+	//Controller
+	for (int i = 1; i <= 64; i++) {
+		for (int j = 0; j < players[i - 1].weaponCount; j++) {
+			int index = players[i - 1].weapons[j].weaponHandle & 0x7FFF;
+			DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weapons[j].weaponEntry + 0x70 * (index & 0x1FF), &players[i - 1].weapons[j].weaponController, sizeof(uint64_t));
+		}
+	}	
+	DMADevice::ExecuteRead(DMADevice::hScatter);
+	DMADevice::Clear(DMADevice::hScatter);
+	//Weapon ID's
+	for (int i = 1; i <= 64; i++) {
+		for (int j = 0; j < players[i - 1].weaponCount; j++) {
+			DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weapons[j].weaponController + +client_dll::m_AttributeManager + client_dll::m_Item + client_dll::m_iItemDefinitionIndex, &players[i - 1].weapons[j].weaponID, sizeof(uint16_t));
+		}
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);

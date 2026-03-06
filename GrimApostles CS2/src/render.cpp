@@ -69,20 +69,31 @@ void gui::renderIcons(CGame game) {
 		angle = game.players[i - 1].eyeAngles.y;
 		angle = angle * 3.14159265f / 180.0f;
 		worldToRadar(x, y, game);
-
-		int weaponID = game.players[i - 1].weaponID;
+		int weaponID = game.players[i - 1].activeWeaponID;
+		bool hasC4 = false;
+		for (int j = 0; j < game.players[i - 1].weaponCount; j++) {
+			if (game.players[i - 1].weapons[j].weaponID == 49) hasC4 = true;
+		}
+		//active weapon
 		float iconW = (float)icons::iconWidths[weaponID] * icons::scale;
 		float iconH = (float)icons::iconHeights[weaponID] * icons::scale;
-		ImVec2 iconPos;
+		//C4
+		float c4W = (float)icons::iconWidths[49] * icons::scale;
+		float c4H = (float)icons::iconHeights[49] * icons::scale;
+
+		ImVec2 iconPos, c4Pos;
 		if (angle <= 3.14159265f && angle >= 0) {
 			// below the dot
 			iconPos = ImVec2(windowPos.x + x - (iconW / 2), (windowPos.y + y) + 10.f);
+			c4Pos = ImVec2(windowPos.x + x - (c4W / 2), iconPos.y + iconH + 2.f);
 		}
 		else {
 			// above the dot
 			iconPos = ImVec2(windowPos.x + x - (iconW / 2), (windowPos.y + y) - 10.f - iconH);
+			c4Pos = ImVec2(windowPos.x + x - (c4W / 2), iconPos.y - c4H - 2.f);
 		}
 
+		//active weapon
 		ImGui::GetForegroundDrawList()->AddImage(
 			(ImTextureID)icons::iconTextures[weaponID],
 			iconPos,
@@ -90,6 +101,16 @@ void gui::renderIcons(CGame game) {
 			ImVec2(0, 0), ImVec2(1, 1),
 			IM_COL32(255, 255, 255, 255)
 		);
+		//c4 - checking its not in our main hand 
+		if (hasC4 && weaponID != 49) {
+			ImGui::GetForegroundDrawList()->AddImage(
+				(ImTextureID)icons::iconTextures[49],
+				c4Pos,
+				ImVec2(c4Pos.x + c4W, c4Pos.y + c4H),
+				ImVec2(0, 0), ImVec2(1, 1),
+				IM_COL32(255, 255, 255, 255)
+			);
+		}
 	}
 }
 

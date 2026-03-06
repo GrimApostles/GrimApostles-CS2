@@ -122,7 +122,7 @@ void gui::Render() {
 		g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-		g_pSwapChain->Present(1, 0); // Present with vsync
+		g_pSwapChain->Present(0, 0);
 	}
 
 
