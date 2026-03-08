@@ -11,7 +11,10 @@ void gui::gameLoop(CGame game) {
 	if (mapName == "de_nuke"    && game.localPlayer.position.z <= maps::nukeZBound)    mapName = "de_nuke_lower";
 	if (mapName == "de_vertigo" && game.localPlayer.position.z <= maps::vertigoZBound) mapName = "de_vertigo_lower";
 
-	renderMap(maps::mapTextures[mapName]);
+	auto texIt = maps::mapTextures.find(mapName);
+	if (texIt == maps::mapTextures.end() || !texIt->second) return;
+
+	renderMap(texIt->second);
 	renderPlayers(game);
 	ImGui::End();
 }
@@ -88,7 +91,9 @@ void gui::renderPlayers(CGame game) {
 
 
 void gui::worldToRadar(float& x, float& y, CGame game) {
-	mapData data = maps::mapBounds[game.map];
+	auto it = maps::mapBounds.find(game.map);
+	if (it == maps::mapBounds.end() || it->second.scale == 0.0f) return;
+	mapData data = it->second;
 	x -= data.xBound;
 	y -= data.yBound;
 	x /= data.scale;

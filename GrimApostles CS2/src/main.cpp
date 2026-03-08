@@ -3,6 +3,26 @@
 #include "updater.h"
 
 int main() {
+	// Redirect std::cout to a timestamped log file next to the exe
+	wchar_t exePath[MAX_PATH];
+	GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+	std::wstring exeDir(exePath);
+	exeDir = exeDir.substr(0, exeDir.find_last_of(L"\\/") + 1);
+
+	auto now = std::chrono::system_clock::now();
+	std::time_t t = std::chrono::system_clock::to_time_t(now);
+	std::tm tm{};
+	localtime_s(&tm, &t);
+	std::wostringstream logName;
+	logName << exeDir
+	        << L"log_"
+	        << std::put_time(&tm, L"%Y%m%d_%H%M%S")
+	        << L".txt";
+
+	static std::ofstream logFile(logName.str());
+	if (logFile.is_open())
+		std::cout.rdbuf(logFile.rdbuf());
+
 	std::cout << "[Main]: GrimApostles CS2 starting\n";
 
 	// Stage 1: Fetch latest offsets from remote (falls back to hardcoded defaults on failure)
