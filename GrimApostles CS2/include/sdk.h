@@ -44,7 +44,7 @@ class CPlayer {
 		uint64_t weaponServices;
 		int32_t weaponCount;
 		uint64_t weaponData;
-		CWeapon weapons[9];
+		CWeapon weapons[16];
 
 };
 
