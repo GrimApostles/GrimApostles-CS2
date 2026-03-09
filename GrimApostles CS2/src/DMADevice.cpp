@@ -101,7 +101,6 @@ bool DMADevice::AttachToProcessId() {
 	if (bConnected == false) {
 		return false;
 	}
-	//we grab a process id from the name some games use 2 process id's or processes like pubg it runs 2 of the same exe names so you have to filter them
 	if (!(VMMDLL_PidGetFromName(hVMM, PROCESS, &dwAttachedProcessId))) {
 		cout << "[DMA]: Failed to find PID\n";
 		return false;
