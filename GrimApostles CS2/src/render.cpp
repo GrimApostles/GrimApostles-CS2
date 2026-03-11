@@ -5,11 +5,8 @@ void gui::gameLoop(CGame game) {
 	//checking bounds for vertigo/nuke
 	if (mapName == "de_nuke" && game.localPlayer.position.z <= maps::nukeZBound) mapName = "de_nuke_lower";
 	if (mapName == "de_vertigo" && game.localPlayer.position.z <= maps::vertigoZBound) mapName = "de_vertigo_lower";
-	//ID3D11ShaderResourceView* texture = fetchMap(mapName);
 	ID3D11ShaderResourceView* texture = maps::mapTextures[mapName];
 	renderMap(texture);
-	renderIcons(game);
-	renderAimLines(game);
 	renderPlayers(game);
 	ImGui::End();
 }
@@ -26,54 +23,42 @@ void gui::renderMap(ID3D11ShaderResourceView* texture) {
 
 void gui::renderPlayers(CGame game) {
 	for (int i = 1; i <= 64; i++) {
-		if (game.players[i - 1].controller == NULL) continue;
-		if (game.players[i - 1].health == 0) continue;
-		float x, y, z;
-		ImU32 dotColor;
-		float opacity;
+		CPlayer& p = game.players[i - 1];
+		if (p.controller == NULL) continue;
+		if (p.health == 0) continue;
+
 		ImVec2 windowPos = ImGui::GetWindowPos();
-		x = game.players[i - 1].position.x;
-		y = game.players[i - 1].position.y;
-		z = game.players[i - 1].position.z;
+		ImU32 dotColor;
+		float localZ = game.localPlayer.position.z;
+	
+		float x = p.position.x;
+		float y = p.position.y;
+		float z = p.position.z;
 		worldToRadar(x, y, game);
-		opacity = setOpacity(game.localPlayer.position.z, z, game);
-		//Only fetching colors for team - no need for enemy. they will all be red
-		if (game.players[i - 1].teamID == game.localPlayer.teamID) {
-			dotColor = setColor(game.players[i - 1].color, opacity);
-		}
-		else {
-			dotColor = IM_COL32(255, 9, 9, opacity);
-		}
-		//LocalPlayer - white dot
-		if (game.players[i - 1].controller == game.localPlayer.controller) {
-			dotColor = IM_COL32(255, 255, 255, 255);
-		}
+
+		float opacity = setOpacity(localZ, z, game);
+
+		float aimLine = 40.f;
+		float angle = p.eyeAngles.y;
+		angle = angle * 3.14159265f / 180.0f;
+
+		//aim lines
+		ImVec2 endpoint = ImVec2(windowPos.x + x + aimLine * cos(angle) + 1.0f, windowPos.y + y + aimLine * sin(angle) * -1 + 1.0f);
+		ImGui::GetForegroundDrawList()->AddLine(ImVec2((windowPos.x + x), (windowPos.y + y)), endpoint, IM_COL32(0, 0, 0, opacity), 6.5f);
+		ImGui::GetForegroundDrawList()->AddLine(ImVec2((windowPos.x + x), (windowPos.y + y)), endpoint, IM_COL32(255, 255, 255, opacity), 4.0f);
+
 		//Players
+		//local player dot white, set team color, enemies red
+		if (p.controller == game.localPlayer.controller) dotColor = IM_COL32(255, 255, 255, 255);
+		else if (p.teamID == game.localPlayer.teamID) dotColor = setColor(p.color, opacity);
+		else (dotColor = IM_COL32(255, 9, 9, opacity));
+		//Draw black outline
 		ImGui::GetForegroundDrawList()->AddCircleFilled(ImVec2((windowPos.x + x), (windowPos.y + y)), 9.25f, IM_COL32(0, 0, 0, 255));
 		ImGui::GetForegroundDrawList()->AddCircleFilled(ImVec2((windowPos.x + x), (windowPos.y + y)), 8.0f, dotColor);
-	}
-}
 
-void gui::renderIcons(CGame game) {
-	for (int i = 1; i <= 64; i++) {
-		if (game.players[i - 1].controller == NULL) continue;
-		if (game.players[i - 1].health == 0) continue;
-		//Not drawing team weapons/util
-		if (game.players[i - 1].teamID == game.localPlayer.teamID) continue;
-		float x, y, z, angle;
-		ImVec2 windowPos = ImGui::GetWindowPos();
-		x = game.players[i - 1].position.x;
-		y = game.players[i - 1].position.y;
-		z = game.players[i - 1].position.z;
-		//aim line\angle data
-		angle = game.players[i - 1].eyeAngles.y;
-		angle = angle * 3.14159265f / 180.0f;
-		worldToRadar(x, y, game);
-		int weaponID = game.players[i - 1].activeWeaponID;
+		//Weapons - only drawing enemy
+		int weaponID = p.activeWeapon.weaponID;
 		bool hasC4 = false;
-		for (int j = 0; j < game.players[i - 1].weaponCount; j++) {
-			if (game.players[i - 1].weapons[j].weaponID == 49) hasC4 = true;
-		}
 		//active weapon
 		float iconW = (float)icons::iconWidths[weaponID] * icons::scale;
 		float iconH = (float)icons::iconHeights[weaponID] * icons::scale;
@@ -81,7 +66,9 @@ void gui::renderIcons(CGame game) {
 		float c4W = (float)icons::iconWidths[49] * icons::scale;
 		float c4H = (float)icons::iconHeights[49] * icons::scale;
 
-		ImVec2 iconPos, c4Pos;
+		ImVec2	iconPos;
+		ImVec2 c4Pos;
+		//Icon/C4 position
 		if (angle <= 3.14159265f && angle >= 0) {
 			// below the dot
 			iconPos = ImVec2(windowPos.x + x - (iconW / 2), (windowPos.y + y) + 10.f);
@@ -93,49 +80,40 @@ void gui::renderIcons(CGame game) {
 			c4Pos = ImVec2(windowPos.x + x - (c4W / 2), iconPos.y - c4H - 2.f);
 		}
 
-		//active weapon
-		ImGui::GetForegroundDrawList()->AddImage(
-			(ImTextureID)icons::iconTextures[weaponID],
-			iconPos,
-			ImVec2(iconPos.x + iconW, iconPos.y + iconH),
-			ImVec2(0, 0), ImVec2(1, 1),
-			IM_COL32(255, 255, 255, 255)
-		);
-		//c4 - checking its not in our main hand 
-		if (hasC4 && weaponID != 49) {
+		//Drawing icons
+		if (p.teamID != game.localPlayer.teamID) {
+
+			//active weapon
 			ImGui::GetForegroundDrawList()->AddImage(
-				(ImTextureID)icons::iconTextures[49],
-				c4Pos,
-				ImVec2(c4Pos.x + c4W, c4Pos.y + c4H),
+				(ImTextureID)icons::iconTextures[p.activeWeapon.weaponID],
+				iconPos,
+				ImVec2(iconPos.x + iconW, iconPos.y + iconH),
 				ImVec2(0, 0), ImVec2(1, 1),
 				IM_COL32(255, 255, 255, 255)
 			);
+
+			//C4
+			if (p.weaponCount < 0 || p.weaponCount > 64) return;
+			for (int j = 0; j < p.weaponCount; j++) {
+				if (p.weapons[j].weaponID == 49) hasC4 = true;
+			}
+
+			if (hasC4 && weaponID != 49) {
+				ImGui::GetForegroundDrawList()->AddImage(
+					(ImTextureID)icons::iconTextures[49],
+					c4Pos,
+					ImVec2(c4Pos.x + c4W, c4Pos.y + c4H),
+					ImVec2(0, 0), ImVec2(1, 1),
+					IM_COL32(255, 255, 255, 255)
+				);
+			}
+
 		}
+
 	}
 }
 
-void gui::renderAimLines(CGame game) {
-	for (int i = 1; i <= 64; i++) {
-		if (game.players[i - 1].controller == NULL) continue;
-		if (game.players[i - 1].health == 0) continue;
-		float x, y, z, angle, length;
-		float opacity;
-		ImVec2 windowPos = ImGui::GetWindowPos();
-		x = game.players[i - 1].position.x;
-		y = game.players[i - 1].position.y;
-		z = game.players[i - 1].position.z;
-		//aim line\angle data
-		angle = game.players[i - 1].eyeAngles.y;
-		angle = angle * 3.14159265f / 180.0f;
-		worldToRadar(x, y, game);
-		opacity = setOpacity(game.localPlayer.position.z, z, game);
-		length = 40.0f;
-		//Aim lines
-		ImVec2 endpoint = ImVec2(windowPos.x + x + length * cos(angle) + 1.0f, windowPos.y + y + length * sin(angle) * -1 + 1.0f);
-		ImGui::GetForegroundDrawList()->AddLine(ImVec2((windowPos.x + x), (windowPos.y + y)), endpoint, IM_COL32(0, 0, 0, opacity), 6.5f);
-		ImGui::GetForegroundDrawList()->AddLine(ImVec2((windowPos.x + x), (windowPos.y + y)), endpoint, IM_COL32(255, 255, 255, opacity), 4.0f);
-	}
-}
+
 
 void gui::worldToRadar(float& x, float& y, CGame game) {
 	std::string mapName = game.map;
@@ -149,7 +127,6 @@ void gui::worldToRadar(float& x, float& y, CGame game) {
 	y *= maps::radarSize / 1024.f;
 	y *= -1;
 }
-
 ImU32 gui::setColor(DWORD color, float opacity) {
 	switch (color) {
 		//Grey
@@ -174,7 +151,6 @@ ImU32 gui::setColor(DWORD color, float opacity) {
 		return IM_COL32(133, 204, 148, opacity);
 	}
 }
-
 float gui::setOpacity(float localZ, float entZ, CGame game) {
 	std::string mapName = game.map;
 	if (mapName == "de_nuke") {

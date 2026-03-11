@@ -29,9 +29,6 @@ namespace icons {
 	std::unordered_map<int, int> iconHeights;
 }
 
-
-
-
 //Init
 void gui::initializeGUI() {
 	// Create application window
@@ -138,8 +135,6 @@ void gui::Render() {
 	return;
 }
 
-
-
 //Our elements
 void gui::ConnectButton() {
 	ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 185, 35));
@@ -165,7 +160,6 @@ void gui::ConnectButton() {
 }
 //Exit button
 void gui::ExitButton() {
-	//Setting up exit button 
 	ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 185, 80));
 	ImGui::StyleColorsDark();
 	ImGui::Begin("EXIT", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
@@ -176,38 +170,4 @@ void gui::ExitButton() {
 
 	}
 	ImGui::End();
-}
-
-
-
-
-//Handles resizing, minimizing, exiting window
-LRESULT WINAPI gui::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-		return true;
-
-	switch (msg)
-	{
-	case WM_SIZE:
-		if (wParam == SIZE_MINIMIZED)
-			return 0;
-		g_ResizeWidth = (UINT)LOWORD(lParam); // Queue resize
-		g_ResizeHeight = (UINT)HIWORD(lParam);
-		return 0;
-	case WM_SYSCOMMAND:
-		if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
-			return 0;
-		break;
-	case WM_DESTROY:
-		::PostQuitMessage(0);
-		return 0;
-	case WM_GETMINMAXINFO:
-		MINMAXINFO* minMaxInfo = (MINMAXINFO*)lParam;
-		minMaxInfo->ptMinTrackSize.x = 960;  // Set minimum width
-		minMaxInfo->ptMinTrackSize.y = 540;  // Set minimum height
-		return 0;
-	}
-	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
-
 }

@@ -31,16 +31,13 @@ class CPlayer {
 		uint32_t pawnAddr;
 		uint64_t nameAddr;
 		uint64_t pawn;
-		char name[36];
+		char name[32];
 		uint8_t teamID;
 		int32_t health;
 		DWORD color;
 		Vector2 eyeAngles;
 		Vector3 position;
-		//Active Weapon
-		uint64_t activeWeapon;
-		uint16_t activeWeaponID;
-		//WeaponServices
+		CWeapon activeWeapon;
 		uint64_t weaponServices;
 		int32_t weaponCount;
 		uint64_t weaponData;
@@ -51,7 +48,7 @@ class CPlayer {
 class CGame {
 	public:
 		CPlayer localPlayer;
-		char map[36];
+		char map[32];
 		uintptr_t entityList;
 		CPlayer players[64];
 		void update();

@@ -45,9 +45,9 @@ bool DMADevice::Connect() {
 
 	if (result) {
 		
-		//printf("[DMA]: DMA configuration found\n");
-		//printf("         ID = %lli\n", qwID);
-		//printf("         VERSION = %lli.%lli\n", qwVersionMajor, qwVersionMinor);
+		printf("[DMA]: DMA configuration found\n");
+		printf("         ID = %lli\n", qwID);
+		printf("         VERSION = %lli.%lli\n", qwVersionMajor, qwVersionMinor);
 
 	}
 	else {

@@ -30,11 +30,12 @@ namespace DMADevice
 	bool Connect();
 	void Disconnect();
 	bool AttachToProcessId();
-	void ShowKeyPress();
 	uint64_t getModuleBase(LPSTR);
 	//Scatter functions
 	bool Clear(VMMDLL_SCATTER_HANDLE);
 	bool ExecuteRead(VMMDLL_SCATTER_HANDLE);
+	void ShowKeyPress();
+
 
 	template<typename U, typename P>DWORD MemRead(U lpAddress, P lpOutput, size_t uiSize, bool bFullReadRequired = true)
 	{

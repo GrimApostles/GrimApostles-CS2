@@ -46,7 +46,7 @@ void CGame::getLocalPos() {
 }
 void::CGame::getLocalName() {
 	localPlayer.nameAddr = DMADevice::MemReadPtr<uint64_t>(localPlayer.controller + client_dll::dwSanitizedName);
-	DMADevice::MemRead(localPlayer.nameAddr, &localPlayer.name, sizeof(char[36]));
+	DMADevice::MemRead(localPlayer.nameAddr, &localPlayer.name, sizeof(char[32]));
 }
 
 //Players
@@ -94,7 +94,7 @@ void CGame::getName() {
 	DMADevice::Clear(DMADevice::hScatter);
 
 	for (int i = 1; i <= 64; i++) {
-		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].nameAddr, &players[i - 1].name, sizeof(char[36]));
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].nameAddr, &players[i - 1].name, sizeof(char[32]));
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
@@ -136,18 +136,17 @@ void CGame::getPosition() {
 }
 void CGame::getActiveWeapons() {
 	for (int i = 1; i <= 64; i++) {
-		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].pawn + client_dll::m_pClippingWeapon, &players[i - 1].activeWeapon, sizeof(uint64_t));
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].pawn + client_dll::m_pClippingWeapon, &players[i - 1].activeWeapon.weaponController, sizeof(uint64_t));
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
 	//Active WeaponID
 	for (int i = 1; i <= 64; i++) {
-		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].activeWeapon + client_dll::m_AttributeManager + client_dll::m_Item + client_dll::m_iItemDefinitionIndex, &players[i - 1].activeWeaponID, sizeof(uint16_t));
+		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].activeWeapon.weaponController + client_dll::m_AttributeManager + client_dll::m_Item + client_dll::m_iItemDefinitionIndex, &players[i - 1].activeWeapon.weaponID, sizeof(uint16_t));
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
 }
-
 //Searching through weapon services to get full loadout -> we can see who has bomb, render full loadout, whatever we need
 void CGame::getWeapons() {
 	//WeaponServices
@@ -156,7 +155,7 @@ void CGame::getWeapons() {
 	}
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
-	//Weapon count
+	//WeaponCount
 	for (int i = 1; i <= 64; i++) {
 		DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weaponServices + client_dll::m_hMyWeapons, &players[i - 1].weaponCount, sizeof(int32_t));
 	}
@@ -170,6 +169,8 @@ void CGame::getWeapons() {
 	DMADevice::Clear(DMADevice::hScatter);
 	//Weapon handles
 	for (int i = 1; i <= 64; i++) {
+		//Checking weapon count - prevents out of bounds read
+		if (players[i - 1].weaponCount < 0 || players[i - 1].weaponCount > 64) return;
 		for (int j = 0; j < players[i - 1].weaponCount; j++) {
 			DMADevice::PrepareEX(DMADevice::hScatter, players[i - 1].weaponData + j * (sizeof(uint32_t)), &players[i - 1].weapons[j].weaponHandle, sizeof(uint32_t));
 		}

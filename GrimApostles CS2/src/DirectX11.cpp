@@ -102,3 +102,34 @@ ID3D11ShaderResourceView* gui::LoadImageTexture(ID3D11Device* device, const wcha
 
 	return texture;
 }
+
+//Handles resizing, minimizing, exiting window
+LRESULT WINAPI gui::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+		return true;
+
+	switch (msg)
+	{
+	case WM_SIZE:
+		if (wParam == SIZE_MINIMIZED)
+			return 0;
+		g_ResizeWidth = (UINT)LOWORD(lParam); // Queue resize
+		g_ResizeHeight = (UINT)HIWORD(lParam);
+		return 0;
+	case WM_SYSCOMMAND:
+		if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+			return 0;
+		break;
+	case WM_DESTROY:
+		::PostQuitMessage(0);
+		return 0;
+	case WM_GETMINMAXINFO:
+		MINMAXINFO* minMaxInfo = (MINMAXINFO*)lParam;
+		minMaxInfo->ptMinTrackSize.x = 960;  // Set minimum width
+		minMaxInfo->ptMinTrackSize.y = 540;  // Set minimum height
+		return 0;
+	}
+	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
+
+}
