@@ -20,13 +20,17 @@ void CGame::getMap() {
 	uintptr_t mapPtr = DMADevice::MemReadPtr<uint64_t>(globalVarsPtr + 0x0188);
 	if (!mapPtr) return;
 
-	DMADevice::MemRead(mapPtr, &mapName, sizeof(mapName));
-	mapName[sizeof(mapName) - 1] = '\0';
+	char newMapName[32] = {};
+	DMADevice::MemRead(mapPtr, newMapName, sizeof(newMapName));
+	newMapName[sizeof(newMapName) - 1] = '\0';
 
-	static char prevMap[32] = {};
-	if (strncmp(mapName, prevMap, sizeof(mapName)) != 0) {
-		std::cout << "[SDK]: Map -> " << (mapName[0] ? mapName : "(none)") << "\n";
-		memcpy(prevMap, mapName, sizeof(mapName));
+	if (newMapName[0]) {
+		static char prevMap[32] = {};
+		if (strncmp(newMapName, prevMap, sizeof(newMapName)) != 0) {
+			std::cout << "[SDK]: Map -> " << newMapName << "\n";
+			memcpy(prevMap, newMapName, sizeof(newMapName));
+		}
+		memcpy(mapName, newMapName, sizeof(mapName));
 	}
 }
 
@@ -104,9 +108,11 @@ void CGame::getPlayers() {
 	DMADevice::ExecuteRead(DMADevice::hScatter);
 	DMADevice::Clear(DMADevice::hScatter);
 
-	playerCount = 0;
+	int newCount = 0;
 	for (int i = 0; i < 64; i++)
-		if (players[i].controller) playerCount++;
+		if (players[i].controller) newCount++;
+	if (newCount > 0)
+		playerCount = newCount;
 }
 
 
