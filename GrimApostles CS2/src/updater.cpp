@@ -72,9 +72,10 @@ bool updater::fetchOffsets() {
 	assign(client_dll::dwEntityList,            "dwEntityList");
 	assign(client_dll::dwLocalPlayerController, "dwLocalPlayerController");
 	assign(client_dll::dwLocalPlayerPawn,       "dwLocalPlayerPawn");
+	assign(client_dll::dwGlobalVars,				"dwGlobalVars");
 	assign(matchmaking_dll::dwGameTypes,        "dwGameTypes");
 
-	std::cout << "[Updater]: " << updated << "/4 dw* offsets updated." << std::endl;
+	std::cout << "[Updater]: " << updated << "/5 dw* offsets updated." << std::endl;
 	return updated > 0;
 }
 

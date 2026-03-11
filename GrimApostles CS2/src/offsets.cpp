@@ -7,9 +7,10 @@
 // ─── offsets.hpp defaults ─────────────────────────────────────────────────────
 
 namespace client_dll {
-	std::ptrdiff_t dwEntityList            = 0x21C8070;
+	std::ptrdiff_t dwEntityList = 0x21C8070;
 	std::ptrdiff_t dwLocalPlayerController = 0x22F0188;
-	std::ptrdiff_t dwLocalPlayerPawn       = 0x2065AF0;
+	std::ptrdiff_t dwLocalPlayerPawn = 0x2065AF0;
+	std::ptrdiff_t dwGlobalVars = 0x205C5C0;
 }
 
 namespace matchmaking_dll {

@@ -4,8 +4,8 @@
 
 static constexpr float PI = 3.14159265f;
 
-void gui::gameLoop(CGame game) {
-	std::string mapName = game.map;
+void gui::gameLoop(const CGame& game) {
+	std::string mapName = game.mapName;
 
 	// Resolve multi-level map variants by Z position
 	if (mapName == "de_nuke"    && game.localPlayer.position.z <= maps::nukeZBound)    mapName = "de_nuke_lower";
@@ -38,12 +38,12 @@ void gui::renderMap(ID3D11ShaderResourceView* texture) {
 }
 
 // Single pass over all players: aim line → weapon icon (enemies only) → dot
-void gui::renderPlayers(CGame game) {
+void gui::renderPlayers(const CGame& game) {
 	ImVec2      windowPos  = ImGui::GetWindowPos();
 	const float aimLength  = 40.0f;
 	const float localZ     = game.localPlayer.position.z;
 
-	for (int i = 0; i < 64; i++) {
+	for (int i = 0; i < game.playerCount; i++) {
 		const CPlayer& p = game.players[i];
 		if (!p.controller || !p.health) continue;
 
@@ -64,18 +64,21 @@ void gui::renderPlayers(CGame game) {
 
 		// Weapon icon — enemies only
 		if (p.teamID != game.localPlayer.teamID) {
-			int   weaponID = p.activeWeaponID;
-			float iconW    = (float)icons::iconWidths[weaponID]  * icons::scale;
-			float iconH    = (float)icons::iconHeights[weaponID] * icons::scale;
-			ImVec2 iconPos = (angle >= 0 && angle <= PI)
-				? ImVec2(pos.x - iconW / 2, pos.y + 10.f)
-				: ImVec2(pos.x - iconW / 2, pos.y - 10.f - iconH);
-			ImGui::GetForegroundDrawList()->AddImage(
-				(ImTextureID)icons::iconTextures[weaponID],
-				iconPos, ImVec2(iconPos.x + iconW, iconPos.y + iconH),
-				ImVec2(0, 0), ImVec2(1, 1),
-				IM_COL32(255, 255, 255, 255)
-			);
+			int weaponID = p.activeWeaponID;
+			auto texIt = icons::iconTextures.find(weaponID);
+			if (texIt != icons::iconTextures.end() && texIt->second) {
+				float  iconW   = (float)icons::iconWidths[weaponID]  * icons::scale;
+				float  iconH   = (float)icons::iconHeights[weaponID] * icons::scale;
+				ImVec2 iconPos = (angle >= 0 && angle <= PI)
+					? ImVec2(pos.x - iconW / 2, pos.y + 10.f)
+					: ImVec2(pos.x - iconW / 2, pos.y - 10.f - iconH);
+				ImGui::GetForegroundDrawList()->AddImage(
+					(ImTextureID)texIt->second,
+					iconPos, ImVec2(iconPos.x + iconW, iconPos.y + iconH),
+					ImVec2(0, 0), ImVec2(1, 1),
+					IM_COL32(255, 255, 255, 255)
+				);
+			}
 		}
 
 		// Player dot — local player white, teammates colored, enemies red
@@ -90,8 +93,8 @@ void gui::renderPlayers(CGame game) {
 }
 
 
-void gui::worldToRadar(float& x, float& y, CGame game) {
-	auto it = maps::mapBounds.find(game.map);
+void gui::worldToRadar(float& x, float& y, const CGame& game) {
+	auto it = maps::mapBounds.find(game.mapName);
 	if (it == maps::mapBounds.end() || it->second.scale == 0.0f) return;
 	mapData data = it->second;
 	x -= data.xBound;
@@ -115,8 +118,8 @@ ImU32 gui::setColor(DWORD color, float opacity) {
 	}
 }
 
-float gui::setOpacity(float localZ, float entZ, CGame game) {
-	std::string mapName = game.map;
+float gui::setOpacity(float localZ, float entZ, const CGame& game) {
+	std::string mapName = game.mapName;
 	if (mapName == "de_nuke") {
 		if (localZ <  maps::nukeZBound && entZ >= maps::nukeZBound) return 155;
 		if (localZ >= maps::nukeZBound && entZ <  maps::nukeZBound) return 155;

@@ -47,9 +47,9 @@ namespace gui {
 	void FpsOverlay();
 
 	// Game rendering (render.cpp)
-	void gameLoop(CGame);
+	void gameLoop(const CGame&);
 	void renderMap(ID3D11ShaderResourceView*);
-	void renderPlayers(CGame);
+	void renderPlayers(const CGame&);
 
 	// Resource loading (resources.cpp)
 	void loadMapBounds();
@@ -57,8 +57,8 @@ namespace gui {
 
 	// Utilities (render.cpp)
 	ImU32 setColor(DWORD color, float opacity);
-	void worldToRadar(float& x, float& y, CGame);
-	float setOpacity(float, float, CGame);
+	void worldToRadar(float& x, float& y, const CGame&);
+	float setOpacity(float, float, const CGame&);
 }
 
 namespace maps {

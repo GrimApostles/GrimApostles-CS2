@@ -14,12 +14,10 @@ int main() {
 	std::tm tm{};
 	localtime_s(&tm, &t);
 	std::wostringstream logName;
-	logName << exeDir
-	        << L"log_"
-	        << std::put_time(&tm, L"%Y%m%d_%H%M%S")
-	        << L".txt";
+	logName << exeDir << L"log_" << std::put_time(&tm, L"%Y%m%d_%H%M%S") << L".txt";
 
 	static std::ofstream logFile(logName.str());
+	logFile.rdbuf()->pubsetbuf(nullptr, 0);  // disable buffering — writes go to disk immediately
 	if (logFile.is_open())
 		std::cout.rdbuf(logFile.rdbuf());
 

@@ -8,13 +8,11 @@ namespace client_dll {
 	extern std::ptrdiff_t dwEntityList;
 	extern std::ptrdiff_t dwLocalPlayerController;
 	extern std::ptrdiff_t dwLocalPlayerPawn;
+	extern std::ptrdiff_t dwGlobalVars;
 }
 
 namespace matchmaking_dll {
 	extern std::ptrdiff_t dwGameTypes;
-
-	// Fixed sub-offset inside the GameTypes struct — not in the dumper output
-	constexpr std::ptrdiff_t dwGameTypes_mapName = 0x120;
 }
 
 // ─── client_dll.hpp  (cs2_dumper::schemas::client_dll::*) ────────────────────
